@@ -1,7 +1,5 @@
 package com.camilolvz.ModuloSanidadGanado360.dto;
 
-import com.camilolvz.ModuloSanidadGanado360.model.Enfermedad;
-
 import java.util.Date;
 import java.util.UUID;
 
@@ -12,23 +10,21 @@ public class TratamientoResponseDTO {
     private UUID idFinca;
 
     private String tipoTratamiento;
-    private String productoUsado;
+
     private String dosis;
-    private String viaAdministracion;
     private String frecuenciaAplicacion;
     private Integer numeroAplicaciones;
 
-    private UUID idEnfermedad;
-    private String nombreEnfermedad;
+    private String productoUsado;
+    private String enfermedadObjetivo;
 
     private Date fechaInicio;
     private Date fechaFin;
     private Date fechaProximaDosis;
+
     private String nombreResponsable;
     private String estado;
     private String observaciones;
-
-
 
     public UUID getId() {
         return id;
@@ -78,14 +74,6 @@ public class TratamientoResponseDTO {
         this.dosis = dosis;
     }
 
-    public String getViaAdministracion() {
-        return viaAdministracion;
-    }
-
-    public void setViaAdministracion(String viaAdministracion) {
-        this.viaAdministracion = viaAdministracion;
-    }
-
     public String getFrecuenciaAplicacion() {
         return frecuenciaAplicacion;
     }
@@ -102,20 +90,12 @@ public class TratamientoResponseDTO {
         this.numeroAplicaciones = numeroAplicaciones;
     }
 
-    public UUID getIdEnfermedad() {
-        return idEnfermedad;
+    public String getEnfermedadObjetivo() {
+        return enfermedadObjetivo;
     }
 
-    public void setIdEnfermedad(UUID idEnfermedad) {
-        this.idEnfermedad = idEnfermedad;
-    }
-
-    public String getNombreEnfermedad() {
-        return nombreEnfermedad;
-    }
-
-    public void setNombreEnfermedad(String nombreEnfermedad) {
-        this.nombreEnfermedad = nombreEnfermedad;
+    public void setEnfermedadObjetivo(String enfermedadObjetivo) {
+        this.enfermedadObjetivo = enfermedadObjetivo;
     }
 
     public Date getFechaInicio() {

@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface DiagnosticoRepository extends JpaRepository<Diagnostico, UUID> {
 
     List<Diagnostico> findByIdIndividuo(UUID idIndividuo);
+
+    List<Diagnostico> findByIdFinca(UUID idFinca);
 }

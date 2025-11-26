@@ -16,15 +16,15 @@ public class TratamientoSanitario {
     private UUID idIndividuo;
     private UUID idFinca;
 
-    private String tipoTratamiento;
-    private String productoUsado;
+    private String tipoTratamiento; //aqui podemos guardar si es vacuna u otro tipo
+
     private String dosis;
-    private String viaAdministracion;
     private String frecuenciaAplicacion;
     private Integer numeroAplicaciones;
-    private String loteVacuna;
-    private String fabricanteVacuna;
-    private Integer diasParaRefuerzo;
+
+    @ManyToOne
+    @JoinColumn(name = "producto_id")
+    private ProductoSanitario productoUsado;
 
     @ManyToOne(optional = true)
     private Enfermedad enfermedadObjetivo;
@@ -48,13 +48,12 @@ public class TratamientoSanitario {
     public TratamientoSanitario() {
     }
 
-    public TratamientoSanitario(UUID idIndividuo, UUID idFinca, String tipoTratamiento, String productoUsado, String dosis, String viaAdministracion, String frecuenciaAplicacion, Enfermedad enfermedadObjetivo, Integer numeroAplicaciones, Date fechaInicio, Date fechaFin, Date fechaProximaDosis, String nombreResponsable, String estado, String observaciones) {
+    public TratamientoSanitario(UUID idIndividuo, UUID idFinca, String tipoTratamiento, ProductoSanitario productoUsado, String dosis, String viaAdministracion, String frecuenciaAplicacion, Enfermedad enfermedadObjetivo, Integer numeroAplicaciones, Date fechaInicio, Date fechaFin, Date fechaProximaDosis, String nombreResponsable, String estado, String observaciones) {
         this.idIndividuo = idIndividuo;
         this.idFinca = idFinca;
         this.tipoTratamiento = tipoTratamiento;
         this.productoUsado = productoUsado;
         this.dosis = dosis;
-        this.viaAdministracion = viaAdministracion;
         this.frecuenciaAplicacion = frecuenciaAplicacion;
         this.enfermedadObjetivo = enfermedadObjetivo;
         this.numeroAplicaciones = numeroAplicaciones;
@@ -98,11 +97,11 @@ public class TratamientoSanitario {
         this.tipoTratamiento = tipoTratamiento;
     }
 
-    public String getProductoUsado() {
+    public ProductoSanitario getProductoUsado() {
         return productoUsado;
     }
 
-    public void setProductoUsado(String productoUsado) {
+    public void setProductoUsado(ProductoSanitario productoUsado) {
         this.productoUsado = productoUsado;
     }
 
@@ -112,14 +111,6 @@ public class TratamientoSanitario {
 
     public void setDosis(String dosis) {
         this.dosis = dosis;
-    }
-
-    public String getViaAdministracion() {
-        return viaAdministracion;
-    }
-
-    public void setViaAdministracion(String viaAdministracion) {
-        this.viaAdministracion = viaAdministracion;
     }
 
     public String getFrecuenciaAplicacion() {

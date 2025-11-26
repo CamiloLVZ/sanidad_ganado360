@@ -58,6 +58,24 @@ public class TratamientoSanitarioController {
         return ResponseEntity.ok(creado);
     }
 
+    @GetMapping("/recordatorios")
+    public ResponseEntity<List<TratamientoResponseDTO>> obtenerRecordatorios() {
+        return ResponseEntity.ok(service.obtenerRecordatorios());
+    }
+
+    @GetMapping("/recordatorios/individuo/{idIndividuo}")
+    public ResponseEntity<List<TratamientoResponseDTO>> obtenerRecordatoriosPorIndividuo(
+            @PathVariable UUID idIndividuo) {
+
+        return ResponseEntity.ok(service.obtenerRecordatoriosPorIndividuo(idIndividuo));
+    }
+
+    @GetMapping("/recordatorios/finca/{idFinca}")
+    public ResponseEntity<List<TratamientoResponseDTO>> obtenerRecordatoriosPorFinca(
+            @PathVariable UUID idFinca) {
+
+        return ResponseEntity.ok(service.obtenerRecordatoriosPorFinca(idFinca));
+    }
 
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable UUID id) {

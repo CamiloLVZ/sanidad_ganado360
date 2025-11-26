@@ -2,13 +2,11 @@ package com.camilolvz.ModuloSanidadGanado360.service;
 
 import com.camilolvz.ModuloSanidadGanado360.dto.TratamientoRequestDTO;
 import com.camilolvz.ModuloSanidadGanado360.dto.TratamientoResponseDTO;
-import com.camilolvz.ModuloSanidadGanado360.model.Enfermedad;
 import com.camilolvz.ModuloSanidadGanado360.model.TratamientoSanitario;
-import com.camilolvz.ModuloSanidadGanado360.repository.EnfermedadRepository;
 import com.camilolvz.ModuloSanidadGanado360.repository.TratamientoSanitarioRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -16,22 +14,18 @@ import java.util.stream.Collectors;
 @Service
 public class TratamientoSanitarioService {
 
-    private final TratamientoSanitarioRepository tratamientoRepo;
-    private final EnfermedadRepository enfermedadRepo;
+    private final TratamientoSanitarioRepository repository;
+    private final ProductoSanitarioService productoService;
+    private final EnfermedadService enfermedadService;
 
     public TratamientoSanitarioService(
-            TratamientoSanitarioRepository tratamientoRepo,
-            EnfermedadRepository enfermedadRepo
+            TratamientoSanitarioRepository repository,
+            ProductoSanitarioService productoService,
+            EnfermedadService enfermedadService
     ) {
-        this.tratamientoRepo = tratamientoRepo;
-        this.enfermedadRepo = enfermedadRepo;
-    }
-
-    private Enfermedad obtenerOcrearEnfermedad(String nombre) {
-        if (nombre == null || nombre.isBlank()) return null;
-
-        return enfermedadRepo.findByNombreIgnoreCase(nombre)
-                .orElseGet(() -> enfermedadRepo.save(new Enfermedad(nombre)));
+        this.repository = repository;
+        this.productoService = productoService;
+        this.enfermedadService = enfermedadService;
     }
 
     private void validarFechas(TratamientoRequestDTO dto) {
@@ -40,6 +34,32 @@ public class TratamientoSanitarioService {
         }
     }
 
+    public List<TratamientoResponseDTO> obtenerRecordatorios() {
+        return repository
+                .findByFechaProximaDosisAfterAndEstado(new Date(), "pendiente")
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+    public List<TratamientoResponseDTO> obtenerRecordatoriosPorIndividuo(UUID idIndividuo) {
+        Date hoy = new Date();
+        return repository.findByIdIndividuoAndFechaProximaDosisAfterAndEstado(
+                        idIndividuo, hoy, "pendiente")
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<TratamientoResponseDTO> obtenerRecordatoriosPorFinca(UUID idFinca) {
+        Date hoy = new Date();
+        return repository.findByIdFincaAndFechaProximaDosisAfterAndEstado(
+                        idFinca, hoy, "pendiente")
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    // DTO → Entity
     private TratamientoSanitario convertirAEntidad(TratamientoRequestDTO dto) {
 
         TratamientoSanitario t = new TratamientoSanitario();
@@ -47,11 +67,23 @@ public class TratamientoSanitarioService {
         t.setIdIndividuo(dto.getIdIndividuo());
         t.setIdFinca(dto.getIdFinca());
         t.setTipoTratamiento(dto.getTipoTratamiento());
-        t.setProductoUsado(dto.getProductoUsado());
         t.setDosis(dto.getDosis());
-        t.setViaAdministracion(dto.getViaAdministracion());
         t.setFrecuenciaAplicacion(dto.getFrecuenciaAplicacion());
         t.setNumeroAplicaciones(dto.getNumeroAplicaciones());
+
+        // Registrar producto si no existe
+        t.setProductoUsado(
+                productoService.obtenerOcrear(dto.getProductoUsado())
+        );
+
+        if (dto.getEnfermedadObjetivo() != null && !dto.getEnfermedadObjetivo().isBlank()) {
+            t.setEnfermedadObjetivo(
+                    enfermedadService.obtenerOcrear(dto.getEnfermedadObjetivo())
+            );
+        } else {
+            t.setEnfermedadObjetivo(null);
+        }
+
         t.setFechaInicio(dto.getFechaInicio());
         t.setFechaFin(dto.getFechaFin());
         t.setFechaProximaDosis(dto.getFechaProximaDosis());
@@ -59,26 +91,27 @@ public class TratamientoSanitarioService {
         t.setEstado(dto.getEstado());
         t.setObservaciones(dto.getObservaciones());
 
-
-        Enfermedad enfermedad = obtenerOcrearEnfermedad(dto.getEnfermedadObjetivo());
-        t.setEnfermedadObjetivo(enfermedad);
-
         return t;
     }
 
+    // Entity → DTO
     private TratamientoResponseDTO convertirADTO(TratamientoSanitario t) {
-
         TratamientoResponseDTO dto = new TratamientoResponseDTO();
 
         dto.setId(t.getId());
         dto.setIdIndividuo(t.getIdIndividuo());
         dto.setIdFinca(t.getIdFinca());
         dto.setTipoTratamiento(t.getTipoTratamiento());
-        dto.setProductoUsado(t.getProductoUsado());
         dto.setDosis(t.getDosis());
-        dto.setViaAdministracion(t.getViaAdministracion());
         dto.setFrecuenciaAplicacion(t.getFrecuenciaAplicacion());
         dto.setNumeroAplicaciones(t.getNumeroAplicaciones());
+
+        dto.setProductoUsado(t.getProductoUsado().getNombre());
+        dto.setEnfermedadObjetivo(t.getEnfermedadObjetivo() != null
+                ? t.getEnfermedadObjetivo().getNombre()
+                : null
+        );
+
         dto.setFechaInicio(t.getFechaInicio());
         dto.setFechaFin(t.getFechaFin());
         dto.setFechaProximaDosis(t.getFechaProximaDosis());
@@ -86,78 +119,79 @@ public class TratamientoSanitarioService {
         dto.setEstado(t.getEstado());
         dto.setObservaciones(t.getObservaciones());
 
-        if (t.getEnfermedadObjetivo() != null) {
-            dto.setIdEnfermedad(t.getEnfermedadObjetivo().getId());
-            dto.setNombreEnfermedad(t.getEnfermedadObjetivo().getNombre());
-        }
-
         return dto;
     }
 
     public TratamientoResponseDTO crear(TratamientoRequestDTO dto) {
         validarFechas(dto);
         TratamientoSanitario entity = convertirAEntidad(dto);
+        return convertirADTO(repository.save(entity));
+    }
 
-        if (dto.getDiasParaRefuerzo() != null && dto.getDiasParaRefuerzo() > 0) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(dto.getFechaInicio());
-            calendar.add(Calendar.DAY_OF_YEAR, dto.getDiasParaRefuerzo());
-            entity.setFechaProximaDosis(calendar.getTime());
-        }
+    public TratamientoResponseDTO obtener(UUID id) {
+        return repository.findById(id)
+                .map(this::convertirADTO)
+                .orElse(null);
+    }
 
-        return convertirADTO(tratamientoRepo.save(entity));
+    public List<TratamientoResponseDTO> obtenerPorIndividuo(UUID idIndividuo) {
+        return repository.findByIdIndividuo(idIndividuo)
+                .stream().map(this::convertirADTO).toList();
+    }
 
+    public List<TratamientoResponseDTO> obtenerPorFinca(UUID idFinca) {
+        return repository.findByIdFinca(idFinca)
+                .stream().map(this::convertirADTO).toList();
     }
 
     public TratamientoResponseDTO actualizar(UUID id, TratamientoRequestDTO dto) {
-        validarFechas(dto);
+        if (dto.getFechaInicio() != null && dto.getFechaFin() != null) {
+            if (dto.getFechaFin().before(dto.getFechaInicio())) {
+                throw new IllegalArgumentException("La fecha de fin no puede ser anterior a la fecha de inicio.");
+            }
+        }
 
-        TratamientoSanitario existente = tratamientoRepo.findById(id).orElse(null);
+        TratamientoSanitario existente = repository.findById(id).orElse(null);
         if (existente == null) {
             return null;
         }
 
-        existente.setIdIndividuo(dto.getIdIndividuo());
-        existente.setIdFinca(dto.getIdFinca());
-        existente.setTipoTratamiento(dto.getTipoTratamiento());
-        existente.setProductoUsado(dto.getProductoUsado());
-        existente.setDosis(dto.getDosis());
-        existente.setViaAdministracion(dto.getViaAdministracion());
-        existente.setFrecuenciaAplicacion(dto.getFrecuenciaAplicacion());
-        existente.setNumeroAplicaciones(dto.getNumeroAplicaciones());
-        existente.setFechaInicio(dto.getFechaInicio());
-        existente.setFechaFin(dto.getFechaFin());
-        existente.setFechaProximaDosis(dto.getFechaProximaDosis());
-        existente.setNombreResponsable(dto.getNombreResponsable());
-        existente.setEstado(dto.getEstado());
-        existente.setObservaciones(dto.getObservaciones());
+      if (dto.getIdIndividuo() != null) existente.setIdIndividuo(dto.getIdIndividuo());
+        if (dto.getIdFinca() != null) existente.setIdFinca(dto.getIdFinca());
+        if (dto.getTipoTratamiento() != null && !dto.getTipoTratamiento().isBlank())
+            existente.setTipoTratamiento(dto.getTipoTratamiento());
 
-        Enfermedad enfermedad = obtenerOcrearEnfermedad(dto.getEnfermedadObjetivo());
-        existente.setEnfermedadObjetivo(enfermedad);
+        if (dto.getDosis() != null && !dto.getDosis().isBlank()) existente.setDosis(dto.getDosis());
+        if (dto.getFrecuenciaAplicacion() != null) existente.setFrecuenciaAplicacion(dto.getFrecuenciaAplicacion());
+        if (dto.getNumeroAplicaciones() != null) existente.setNumeroAplicaciones(dto.getNumeroAplicaciones());
 
-        return convertirADTO(tratamientoRepo.save(existente));
-    }
+        if (dto.getProductoUsado() != null && !dto.getProductoUsado().isBlank()) {
+            existente.setProductoUsado(productoService.obtenerOcrear(dto.getProductoUsado()));
+        }
 
-    public TratamientoResponseDTO obtener(UUID id) {
-        TratamientoSanitario t = tratamientoRepo.findById(id).orElse(null);
-        return t != null ? convertirADTO(t) : null;
-    }
+        if (dto.getEnfermedadObjetivo() != null) {
+            if (!dto.getEnfermedadObjetivo().isBlank()) {
+                existente.setEnfermedadObjetivo(enfermedadService.obtenerOcrear(dto.getEnfermedadObjetivo()));
+            } else {
+                existente.setEnfermedadObjetivo(null);
+            }
+        }
 
-    public List<TratamientoResponseDTO> obtenerPorIndividuo(UUID idIndividuo) {
-        return tratamientoRepo.findByIdIndividuo(idIndividuo)
-                .stream()
-                .map(this::convertirADTO)
-                .collect(Collectors.toList());
-    }
+        if (dto.getFechaInicio() != null) existente.setFechaInicio(dto.getFechaInicio());
+        if (dto.getFechaFin() != null) existente.setFechaFin(dto.getFechaFin());
+        if (dto.getFechaProximaDosis() != null) existente.setFechaProximaDosis(dto.getFechaProximaDosis());
 
-    public List<TratamientoResponseDTO> obtenerPorFinca(UUID idFinca) {
-        return tratamientoRepo.findByIdFinca(idFinca)
-                .stream()
-                .map(this::convertirADTO)
-                .collect(Collectors.toList());
+        if (dto.getNombreResponsable() != null && !dto.getNombreResponsable().isBlank())
+            existente.setNombreResponsable(dto.getNombreResponsable());
+
+        if (dto.getEstado() != null && !dto.getEstado().isBlank()) existente.setEstado(dto.getEstado());
+        if (dto.getObservaciones() != null) existente.setObservaciones(dto.getObservaciones());
+
+        TratamientoSanitario guardado = repository.save(existente);
+        return convertirADTO(guardado);
     }
 
     public void eliminar(UUID id) {
-        tratamientoRepo.deleteById(id);
+        repository.deleteById(id);
     }
 }

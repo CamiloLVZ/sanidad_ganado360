@@ -5,7 +5,6 @@ import com.camilolvz.ModuloSanidadGanado360.dto.DiagnosticoResponseDTO;
 import com.camilolvz.ModuloSanidadGanado360.model.Diagnostico;
 import com.camilolvz.ModuloSanidadGanado360.model.Enfermedad;
 import com.camilolvz.ModuloSanidadGanado360.repository.DiagnosticoRepository;
-import com.camilolvz.ModuloSanidadGanado360.repository.EnfermedadRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,22 +15,17 @@ import java.util.stream.Collectors;
 public class DiagnosticoService {
 
     private final DiagnosticoRepository diagnosticoRepository;
-    private final EnfermedadRepository enfermedadRepository;
+    private final EnfermedadService enfermedadService;
 
-    public DiagnosticoService(DiagnosticoRepository diagnosticoRepository, EnfermedadRepository enfermedadRepository) {
+    public DiagnosticoService(DiagnosticoRepository diagnosticoRepository,
+                              EnfermedadService enfermedadService) {
         this.diagnosticoRepository = diagnosticoRepository;
-        this.enfermedadRepository = enfermedadRepository;
+        this.enfermedadService = enfermedadService;
     }
 
     public DiagnosticoResponseDTO diagnosticar(DiagnosticoRequestDTO dto) {
 
-        Enfermedad enfermedad = enfermedadRepository
-                .findByNombreIgnoreCase(dto.getNombreEnfermedad())
-                .orElseGet(() -> {
-                    Enfermedad nueva = new Enfermedad();
-                    nueva.setNombre(dto.getNombreEnfermedad());
-                    return enfermedadRepository.save(nueva);
-                });
+        Enfermedad enfermedad = enfermedadService.obtenerOcrear(dto.getNombreEnfermedad());
 
         Diagnostico d = new Diagnostico();
         d.setIdIndividuo(dto.getIdIndividuo());
@@ -44,6 +38,18 @@ public class DiagnosticoService {
         return convertirADTO(diagnosticoRepository.save(d));
     }
 
+    public DiagnosticoResponseDTO obtener(UUID id) {
+        Diagnostico d = diagnosticoRepository.findById(id).orElse(null);
+        return d != null ? convertirADTO(d) : null;
+    }
+
+    public List<DiagnosticoResponseDTO> obtenerTodos() {
+        return diagnosticoRepository.findAll()
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
     public List<DiagnosticoResponseDTO> obtenerPorIndividuo(UUID idIndividuo) {
         return diagnosticoRepository.findByIdIndividuo(idIndividuo)
                 .stream()
@@ -51,11 +57,36 @@ public class DiagnosticoService {
                 .collect(Collectors.toList());
     }
 
-    public List<String> listarEnfermedades() {
-        return enfermedadRepository.findAll()
+
+    public List<DiagnosticoResponseDTO> obtenerPorFinca(UUID idFinca) {
+        return diagnosticoRepository.findByIdFinca(idFinca)
                 .stream()
-                .map(Enfermedad::getNombre)
+                .map(this::convertirADTO)
                 .collect(Collectors.toList());
+    }
+
+    public DiagnosticoResponseDTO actualizar(UUID id, DiagnosticoRequestDTO dto) {
+
+        Diagnostico existente = diagnosticoRepository.findById(id).orElse(null);
+        if (existente == null) {
+            return null;
+        }
+
+        Enfermedad enfermedad = enfermedadService.obtenerOcrear(dto.getNombreEnfermedad());
+
+        existente.setIdIndividuo(dto.getIdIndividuo());
+        existente.setIdFinca(dto.getIdFinca());
+        existente.setFechaDiagnostico(dto.getFechaDiagnostico());
+        existente.setResponsable(dto.getResponsable());
+        existente.setObservaciones(dto.getObservaciones());
+        existente.setEnfermedad(enfermedad);
+
+        return convertirADTO(diagnosticoRepository.save(existente));
+    }
+
+
+    public void eliminar(UUID id) {
+        diagnosticoRepository.deleteById(id);
     }
 
     private DiagnosticoResponseDTO convertirADTO(Diagnostico d) {

@@ -1,15 +1,11 @@
 package com.camilolvz.ModuloSanidadGanado360.dto;
 
-import com.camilolvz.ModuloSanidadGanado360.model.Enfermedad;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+
 
 import java.util.Date;
 import java.util.UUID;
-
 
 public class TratamientoRequestDTO {
 
@@ -23,22 +19,15 @@ public class TratamientoRequestDTO {
     private String tipoTratamiento;
 
     @NotBlank
-    private String productoUsado;
-
-    @NotBlank
     private String dosis;
 
-    private String viaAdministracion;
     private String frecuenciaAplicacion;
     private Integer numeroAplicaciones;
-    private String loteVacuna;
-    private String fabricanteVacuna;
-    private Integer diasParaRefuerzo;
 
+    @NotBlank
+    private String productoUsado; // nombre del producto
 
-    private String enfermedadObjetivo;
-
-
+    private String enfermedadObjetivo; // nombre, opcional
 
     @NotNull
     private Date fechaInicio;
@@ -57,7 +46,6 @@ public class TratamientoRequestDTO {
     private String observaciones;
 
 
-
     public TratamientoRequestDTO() {
     }
 
@@ -67,7 +55,6 @@ public class TratamientoRequestDTO {
         this.tipoTratamiento = tipoTratamiento;
         this.productoUsado = productoUsado;
         this.dosis = dosis;
-        this.viaAdministracion = viaAdministracion;
         this.numeroAplicaciones = numeroAplicaciones;
         this.frecuenciaAplicacion = frecuenciaAplicacion;
         this.enfermedadObjetivo = enfermedadObjetivo;
@@ -77,30 +64,6 @@ public class TratamientoRequestDTO {
         this.nombreResponsable = nombreResponsable;
         this.estado = estado;
         this.observaciones = observaciones;
-    }
-
-    public String getLoteVacuna() {
-        return loteVacuna;
-    }
-
-    public void setLoteVacuna(String loteVacuna) {
-        this.loteVacuna = loteVacuna;
-    }
-
-    public String getFabricanteVacuna() {
-        return fabricanteVacuna;
-    }
-
-    public void setFabricanteVacuna(String fabricanteVacuna) {
-        this.fabricanteVacuna = fabricanteVacuna;
-    }
-
-    public Integer getDiasParaRefuerzo() {
-        return diasParaRefuerzo;
-    }
-
-    public void setDiasParaRefuerzo(Integer diasParaRefuerzo) {
-        this.diasParaRefuerzo = diasParaRefuerzo;
     }
 
     public UUID getIdIndividuo() {
@@ -182,15 +145,6 @@ public class TratamientoRequestDTO {
     public void setFrecuenciaAplicacion(String frecuenciaAplicacion) {
         this.frecuenciaAplicacion = frecuenciaAplicacion;
     }
-
-    public String getViaAdministracion() {
-        return viaAdministracion;
-    }
-
-    public void setViaAdministracion(String viaAdministracion) {
-        this.viaAdministracion = viaAdministracion;
-    }
-
     public String getDosis() {
         return dosis;
     }
