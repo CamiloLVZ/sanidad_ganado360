@@ -1,5 +1,6 @@
 package com.camilolvz.ModuloSanidadGanado360.dto;
 
+import com.camilolvz.ModuloSanidadGanado360.model.Enfermedad;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -12,10 +13,10 @@ import java.util.UUID;
 
 public class TratamientoRequestDTO {
 
-    @NotBlank
+    @NotNull
     private UUID idIndividuo;
 
-    @NotBlank
+    @NotNull
     private UUID idFinca;
 
     @NotBlank
@@ -30,7 +31,14 @@ public class TratamientoRequestDTO {
     private String viaAdministracion;
     private String frecuenciaAplicacion;
     private Integer numeroAplicaciones;
+    private String loteVacuna;
+    private String fabricanteVacuna;
+    private Integer diasParaRefuerzo;
+
+
     private String enfermedadObjetivo;
+
+
 
     @NotNull
     private Date fechaInicio;
@@ -48,7 +56,6 @@ public class TratamientoRequestDTO {
 
     private String observaciones;
 
-    private Integer diasParaRefuerzo;
 
 
     public TratamientoRequestDTO() {
@@ -72,11 +79,35 @@ public class TratamientoRequestDTO {
         this.observaciones = observaciones;
     }
 
-    public @NotBlank UUID getIdIndividuo() {
+    public String getLoteVacuna() {
+        return loteVacuna;
+    }
+
+    public void setLoteVacuna(String loteVacuna) {
+        this.loteVacuna = loteVacuna;
+    }
+
+    public String getFabricanteVacuna() {
+        return fabricanteVacuna;
+    }
+
+    public void setFabricanteVacuna(String fabricanteVacuna) {
+        this.fabricanteVacuna = fabricanteVacuna;
+    }
+
+    public Integer getDiasParaRefuerzo() {
+        return diasParaRefuerzo;
+    }
+
+    public void setDiasParaRefuerzo(Integer diasParaRefuerzo) {
+        this.diasParaRefuerzo = diasParaRefuerzo;
+    }
+
+    public UUID getIdIndividuo() {
         return idIndividuo;
     }
 
-    public void setIdIndividuo(@NotBlank UUID idIndividuo) {
+    public void setIdIndividuo(UUID idIndividuo) {
         this.idIndividuo = idIndividuo;
     }
 
@@ -88,19 +119,19 @@ public class TratamientoRequestDTO {
         this.observaciones = observaciones;
     }
 
-    public @NotBlank String getEstado() {
+    public String getEstado() {
         return estado;
     }
 
-    public void setEstado(@NotBlank String estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
 
-    public @NotBlank String getNombreResponsable() {
+    public String getNombreResponsable() {
         return nombreResponsable;
     }
 
-    public void setNombreResponsable(@NotBlank String nombreResponsable) {
+    public void setNombreResponsable(String nombreResponsable) {
         this.nombreResponsable = nombreResponsable;
     }
 
@@ -112,11 +143,11 @@ public class TratamientoRequestDTO {
         this.fechaProximaDosis = fechaProximaDosis;
     }
 
-    public @NotNull Date getFechaFin() {
+    public Date getFechaFin() {
         return fechaFin;
     }
 
-    public void setFechaFin(@NotNull Date fechaFin) {
+    public void setFechaFin(Date fechaFin) {
         this.fechaFin = fechaFin;
     }
 
@@ -124,7 +155,7 @@ public class TratamientoRequestDTO {
         return fechaInicio;
     }
 
-    public void setFechaInicio(@NotNull Date fechaInicio) {
+    public void setFechaInicio(Date fechaInicio) {
         this.fechaInicio = fechaInicio;
     }
 
@@ -160,35 +191,35 @@ public class TratamientoRequestDTO {
         this.viaAdministracion = viaAdministracion;
     }
 
-    public @NotBlank String getDosis() {
+    public String getDosis() {
         return dosis;
     }
 
-    public void setDosis(@NotBlank String dosis) {
+    public void setDosis(String dosis) {
         this.dosis = dosis;
     }
 
-    public @NotBlank String getProductoUsado() {
+    public String getProductoUsado() {
         return productoUsado;
     }
 
-    public void setProductoUsado(@NotBlank String productoUsado) {
+    public void setProductoUsado(String productoUsado) {
         this.productoUsado = productoUsado;
     }
 
-    public @NotBlank String getTipoTratamiento() {
+    public String getTipoTratamiento() {
         return tipoTratamiento;
     }
 
-    public void setTipoTratamiento(@NotBlank String tipoTratamiento) {
+    public void setTipoTratamiento(String tipoTratamiento) {
         this.tipoTratamiento = tipoTratamiento;
     }
 
-    public @NotBlank UUID getIdFinca() {
+    public UUID getIdFinca() {
         return idFinca;
     }
 
-    public void setIdFinca(@NotBlank UUID idFinca) {
+    public void setIdFinca(UUID idFinca) {
         this.idFinca = idFinca;
     }
 }

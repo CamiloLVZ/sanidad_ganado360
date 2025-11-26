@@ -22,7 +22,12 @@ public class TratamientoSanitario {
     private String viaAdministracion;
     private String frecuenciaAplicacion;
     private Integer numeroAplicaciones;
-    private String enfermedadObjetivo;
+    private String loteVacuna;
+    private String fabricanteVacuna;
+    private Integer diasParaRefuerzo;
+
+    @ManyToOne(optional = true)
+    private Enfermedad enfermedadObjetivo;
 
     @Temporal(TemporalType.DATE)
     private Date fechaInicio;
@@ -43,8 +48,7 @@ public class TratamientoSanitario {
     public TratamientoSanitario() {
     }
 
-    public TratamientoSanitario(UUID id, UUID idIndividuo, UUID idFinca, String tipoTratamiento, String productoUsado, String dosis, String viaAdministracion, String frecuenciaAplicacion, String enfermedadObjetivo, Integer numeroAplicaciones, Date fechaInicio, Date fechaFin, Date fechaProximaDosis, String nombreResponsable, String estado, String observaciones) {
-        this.id = id;
+    public TratamientoSanitario(UUID idIndividuo, UUID idFinca, String tipoTratamiento, String productoUsado, String dosis, String viaAdministracion, String frecuenciaAplicacion, Enfermedad enfermedadObjetivo, Integer numeroAplicaciones, Date fechaInicio, Date fechaFin, Date fechaProximaDosis, String nombreResponsable, String estado, String observaciones) {
         this.idIndividuo = idIndividuo;
         this.idFinca = idFinca;
         this.tipoTratamiento = tipoTratamiento;
@@ -134,11 +138,11 @@ public class TratamientoSanitario {
         this.numeroAplicaciones = numeroAplicaciones;
     }
 
-    public String getEnfermedadObjetivo() {
+    public Enfermedad getEnfermedadObjetivo() {
         return enfermedadObjetivo;
     }
 
-    public void setEnfermedadObjetivo(String enfermedadObjetivo) {
+    public void setEnfermedadObjetivo(Enfermedad enfermedadObjetivo) {
         this.enfermedadObjetivo = enfermedadObjetivo;
     }
 

@@ -4,9 +4,11 @@ import com.camilolvz.ModuloSanidadGanado360.dto.TratamientoRequestDTO;
 import com.camilolvz.ModuloSanidadGanado360.dto.TratamientoResponseDTO;
 import com.camilolvz.ModuloSanidadGanado360.service.TratamientoSanitarioService;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tratamientos")
@@ -26,28 +28,39 @@ public class TratamientoSanitarioController {
 
     @PutMapping("/{id}")
     public TratamientoResponseDTO actualizar(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Valid @RequestBody TratamientoRequestDTO dto) {
         return service.actualizar(id, dto);
     }
 
     @GetMapping("/{id}")
-    public TratamientoResponseDTO obtener(@PathVariable Long id) {
+    public TratamientoResponseDTO obtener(@PathVariable UUID id) {
         return service.obtener(id);
     }
 
     @GetMapping("/individuo/{idIndividuo}")
-    public List<TratamientoResponseDTO> obtenerPorIndividuo(@PathVariable String idIndividuo) {
+    public List<TratamientoResponseDTO> obtenerPorIndividuo(@PathVariable UUID idIndividuo) {
         return service.obtenerPorIndividuo(idIndividuo);
     }
 
     @GetMapping("/finca/{idFinca}")
-    public List<TratamientoResponseDTO> obtenerPorFinca(@PathVariable String idFinca) {
+    public List<TratamientoResponseDTO> obtenerPorFinca(@PathVariable UUID idFinca) {
         return service.obtenerPorFinca(idFinca);
     }
 
+    @PostMapping("/vacunas")
+    public ResponseEntity<TratamientoResponseDTO> registrarVacuna(
+            @Valid @RequestBody TratamientoRequestDTO dto) {
+
+        dto.setTipoTratamiento("Vacuna");
+
+        TratamientoResponseDTO creado = service.crear(dto);
+        return ResponseEntity.ok(creado);
+    }
+
+
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
+    public void eliminar(@PathVariable UUID id) {
         service.eliminar(id);
     }
 }

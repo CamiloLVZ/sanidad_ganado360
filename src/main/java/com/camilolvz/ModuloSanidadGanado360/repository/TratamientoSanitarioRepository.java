@@ -5,11 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface TratamientoSanitarioRepository extends JpaRepository<TratamientoSanitario, Long> {
+public interface TratamientoSanitarioRepository extends JpaRepository<TratamientoSanitario, UUID> {
 
-    List<TratamientoSanitario> findByIdIndividuo(String idIndividuo);
+    List<TratamientoSanitario> findByIdIndividuo(UUID idIndividuo);
 
-    List<TratamientoSanitario> findByIdFinca(String idFinca);
+    List<TratamientoSanitario> findByIdFinca(UUID idFinca);
 }

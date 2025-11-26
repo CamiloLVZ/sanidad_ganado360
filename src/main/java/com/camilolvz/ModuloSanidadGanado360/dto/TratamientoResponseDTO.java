@@ -1,25 +1,26 @@
 package com.camilolvz.ModuloSanidadGanado360.dto;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import com.camilolvz.ModuloSanidadGanado360.model.Enfermedad;
 
 import java.util.Date;
 import java.util.UUID;
-
 
 public class TratamientoResponseDTO {
 
     private UUID id;
     private UUID idIndividuo;
     private UUID idFinca;
+
     private String tipoTratamiento;
     private String productoUsado;
     private String dosis;
     private String viaAdministracion;
     private String frecuenciaAplicacion;
     private Integer numeroAplicaciones;
-    private String enfermedadObjetivo;
+
+    private UUID idEnfermedad;
+    private String nombreEnfermedad;
+
     private Date fechaInicio;
     private Date fechaFin;
     private Date fechaProximaDosis;
@@ -27,27 +28,7 @@ public class TratamientoResponseDTO {
     private String estado;
     private String observaciones;
 
-    public TratamientoResponseDTO() {
-    }
 
-    public TratamientoResponseDTO(UUID id, UUID idIndividuo, UUID idFinca, String tipoTratamiento, String productoUsado, String dosis, String viaAdministracion, String frecuenciaAplicacion, Integer numeroAplicaciones, String enfermedadObjetivo, Date fechaInicio, Date fechaFin, String nombreResponsable, Date fechaProximaDosis, String observaciones, String estado) {
-        this.id = id;
-        this.idIndividuo = idIndividuo;
-        this.idFinca = idFinca;
-        this.tipoTratamiento = tipoTratamiento;
-        this.productoUsado = productoUsado;
-        this.dosis = dosis;
-        this.viaAdministracion = viaAdministracion;
-        this.frecuenciaAplicacion = frecuenciaAplicacion;
-        this.numeroAplicaciones = numeroAplicaciones;
-        this.enfermedadObjetivo = enfermedadObjetivo;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
-        this.nombreResponsable = nombreResponsable;
-        this.fechaProximaDosis = fechaProximaDosis;
-        this.observaciones = observaciones;
-        this.estado = estado;
-    }
 
     public UUID getId() {
         return id;
@@ -121,12 +102,20 @@ public class TratamientoResponseDTO {
         this.numeroAplicaciones = numeroAplicaciones;
     }
 
-    public String getEnfermedadObjetivo() {
-        return enfermedadObjetivo;
+    public UUID getIdEnfermedad() {
+        return idEnfermedad;
     }
 
-    public void setEnfermedadObjetivo(String enfermedadObjetivo) {
-        this.enfermedadObjetivo = enfermedadObjetivo;
+    public void setIdEnfermedad(UUID idEnfermedad) {
+        this.idEnfermedad = idEnfermedad;
+    }
+
+    public String getNombreEnfermedad() {
+        return nombreEnfermedad;
+    }
+
+    public void setNombreEnfermedad(String nombreEnfermedad) {
+        this.nombreEnfermedad = nombreEnfermedad;
     }
 
     public Date getFechaInicio() {
