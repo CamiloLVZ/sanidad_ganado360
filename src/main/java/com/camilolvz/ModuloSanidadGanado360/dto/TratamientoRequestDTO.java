@@ -7,15 +7,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.UUID;
 
 
 public class TratamientoRequestDTO {
 
     @NotBlank
-    private String idIndividuo;
+    private UUID idIndividuo;
 
     @NotBlank
-    private String idFinca;
+    private UUID idFinca;
 
     @NotBlank
     private String tipoTratamiento;
@@ -47,10 +48,13 @@ public class TratamientoRequestDTO {
 
     private String observaciones;
 
+    private Integer diasParaRefuerzo;
+
+
     public TratamientoRequestDTO() {
     }
 
-    public TratamientoRequestDTO(String idIndividuo, String idFinca, String tipoTratamiento, String productoUsado, String dosis, String viaAdministracion, Integer numeroAplicaciones, String frecuenciaAplicacion, String enfermedadObjetivo, Date fechaInicio, Date fechaFin, Date fechaProximaDosis, String nombreResponsable, String estado, String observaciones) {
+    public TratamientoRequestDTO(UUID idIndividuo, UUID idFinca, String tipoTratamiento, String productoUsado, String dosis, String viaAdministracion, Integer numeroAplicaciones, String frecuenciaAplicacion, String enfermedadObjetivo, Date fechaInicio, Date fechaFin, Date fechaProximaDosis, String nombreResponsable, String estado, String observaciones) {
         this.idIndividuo = idIndividuo;
         this.idFinca = idFinca;
         this.tipoTratamiento = tipoTratamiento;
@@ -68,11 +72,11 @@ public class TratamientoRequestDTO {
         this.observaciones = observaciones;
     }
 
-    public @NotBlank String getIdIndividuo() {
+    public @NotBlank UUID getIdIndividuo() {
         return idIndividuo;
     }
 
-    public void setIdIndividuo(@NotBlank String idIndividuo) {
+    public void setIdIndividuo(@NotBlank UUID idIndividuo) {
         this.idIndividuo = idIndividuo;
     }
 
@@ -180,11 +184,11 @@ public class TratamientoRequestDTO {
         this.tipoTratamiento = tipoTratamiento;
     }
 
-    public @NotBlank String getIdFinca() {
+    public @NotBlank UUID getIdFinca() {
         return idFinca;
     }
 
-    public void setIdFinca(@NotBlank String idFinca) {
+    public void setIdFinca(@NotBlank UUID idFinca) {
         this.idFinca = idFinca;
     }
 }

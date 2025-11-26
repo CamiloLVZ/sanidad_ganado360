@@ -5,13 +5,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.UUID;
 
 
 public class TratamientoResponseDTO {
 
-    private Long id;
-    private String idIndividuo;
-    private String idFinca;
+    private UUID id;
+    private UUID idIndividuo;
+    private UUID idFinca;
     private String tipoTratamiento;
     private String productoUsado;
     private String dosis;
@@ -29,7 +30,7 @@ public class TratamientoResponseDTO {
     public TratamientoResponseDTO() {
     }
 
-    public TratamientoResponseDTO(Long id, String idIndividuo, String idFinca, String tipoTratamiento, String productoUsado, String dosis, String viaAdministracion, String frecuenciaAplicacion, Integer numeroAplicaciones, String enfermedadObjetivo, Date fechaInicio, Date fechaFin, String nombreResponsable, Date fechaProximaDosis, String observaciones, String estado) {
+    public TratamientoResponseDTO(UUID id, UUID idIndividuo, UUID idFinca, String tipoTratamiento, String productoUsado, String dosis, String viaAdministracion, String frecuenciaAplicacion, Integer numeroAplicaciones, String enfermedadObjetivo, Date fechaInicio, Date fechaFin, String nombreResponsable, Date fechaProximaDosis, String observaciones, String estado) {
         this.id = id;
         this.idIndividuo = idIndividuo;
         this.idFinca = idFinca;
@@ -48,27 +49,27 @@ public class TratamientoResponseDTO {
         this.estado = estado;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public String getIdIndividuo() {
+    public UUID getIdIndividuo() {
         return idIndividuo;
     }
 
-    public void setIdIndividuo(String idIndividuo) {
+    public void setIdIndividuo(UUID idIndividuo) {
         this.idIndividuo = idIndividuo;
     }
 
-    public String getIdFinca() {
+    public UUID getIdFinca() {
         return idFinca;
     }
 
-    public void setIdFinca(String idFinca) {
+    public void setIdFinca(UUID idFinca) {
         this.idFinca = idFinca;
     }
 

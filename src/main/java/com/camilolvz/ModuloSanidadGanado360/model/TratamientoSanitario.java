@@ -3,17 +3,18 @@ package com.camilolvz.ModuloSanidadGanado360.model;
 import jakarta.persistence.*;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 
 public class TratamientoSanitario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    private String idIndividuo;
-    private String idFinca;
+    private UUID idIndividuo;
+    private UUID idFinca;
 
     private String tipoTratamiento;
     private String productoUsado;
@@ -42,7 +43,7 @@ public class TratamientoSanitario {
     public TratamientoSanitario() {
     }
 
-    public TratamientoSanitario(Long id, String idIndividuo, String idFinca, String tipoTratamiento, String productoUsado, String dosis, String viaAdministracion, String frecuenciaAplicacion, String enfermedadObjetivo, Integer numeroAplicaciones, Date fechaInicio, Date fechaFin, Date fechaProximaDosis, String nombreResponsable, String estado, String observaciones) {
+    public TratamientoSanitario(UUID id, UUID idIndividuo, UUID idFinca, String tipoTratamiento, String productoUsado, String dosis, String viaAdministracion, String frecuenciaAplicacion, String enfermedadObjetivo, Integer numeroAplicaciones, Date fechaInicio, Date fechaFin, Date fechaProximaDosis, String nombreResponsable, String estado, String observaciones) {
         this.id = id;
         this.idIndividuo = idIndividuo;
         this.idFinca = idFinca;
@@ -61,27 +62,27 @@ public class TratamientoSanitario {
         this.observaciones = observaciones;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public String getIdFinca() {
+    public UUID getIdFinca() {
         return idFinca;
     }
 
-    public void setIdFinca(String idFinca) {
+    public void setIdFinca(UUID idFinca) {
         this.idFinca = idFinca;
     }
 
-    public String getIdIndividuo() {
+    public UUID getIdIndividuo() {
         return idIndividuo;
     }
 
-    public void setIdIndividuo(String idIndividuo) {
+    public void setIdIndividuo(UUID idIndividuo) {
         this.idIndividuo = idIndividuo;
     }
 
