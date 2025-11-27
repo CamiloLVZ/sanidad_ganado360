@@ -1,187 +1,76 @@
 package com.camilolvz.ModuloSanidadGanado360.model;
 
 import jakarta.persistence.*;
-
-import java.util.Date;
 import java.util.UUID;
 
 @Entity
-
 public class TratamientoSanitario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private UUID idIndividuo;
-    private UUID idFinca;
+    @Column(unique = true, nullable = false)
+    private String nombre;
 
-    private String tipoTratamiento; //aqui podemos guardar si es vacuna u otro tipo
+    @Column(columnDefinition = "TEXT", nullable = true)
+    private String descripcion;
 
+    // nuevos campos
+    private String medicamento;
     private String dosis;
-    private String frecuenciaAplicacion;
-    private Integer numeroAplicaciones;
 
-    @ManyToOne
-    @JoinColumn(name = "producto_id")
-    private ProductoSanitario productoUsado;
+    // duracion total: cantidad + unidad
+    private Integer duracionTotalCantidad;
 
-    @ManyToOne(optional = true)
-    private Enfermedad enfermedadObjetivo;
+    @Enumerated(EnumType.STRING)
+    private TiempoUnidad duracionTotalUnidad;
 
-    @Temporal(TemporalType.DATE)
-    private Date fechaInicio;
+    // tiempo entre incidencias: cantidad + unidad
+    private Integer intervaloCantidad;
 
-    @Temporal(TemporalType.DATE)
-    private Date fechaFin;
+    @Enumerated(EnumType.STRING)
+    private TiempoUnidad intervaloUnidad;
 
-    @Temporal(TemporalType.DATE)
-    private Date fechaProximaDosis;
+    public TratamientoSanitario() {}
 
-    private String nombreResponsable;
-
-    private String estado;
-
-    @Column(length = 2000)
-    private String observaciones;
-
-    public TratamientoSanitario() {
-    }
-
-    public TratamientoSanitario(UUID idIndividuo, UUID idFinca, String tipoTratamiento, ProductoSanitario productoUsado, String dosis, String viaAdministracion, String frecuenciaAplicacion, Enfermedad enfermedadObjetivo, Integer numeroAplicaciones, Date fechaInicio, Date fechaFin, Date fechaProximaDosis, String nombreResponsable, String estado, String observaciones) {
-        this.idIndividuo = idIndividuo;
-        this.idFinca = idFinca;
-        this.tipoTratamiento = tipoTratamiento;
-        this.productoUsado = productoUsado;
+    public TratamientoSanitario(String nombre, String descripcion, String medicamento, String dosis,
+                                Integer duracionTotalCantidad, TiempoUnidad duracionTotalUnidad,
+                                Integer intervaloCantidad, TiempoUnidad intervaloUnidad) {
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.medicamento = medicamento;
         this.dosis = dosis;
-        this.frecuenciaAplicacion = frecuenciaAplicacion;
-        this.enfermedadObjetivo = enfermedadObjetivo;
-        this.numeroAplicaciones = numeroAplicaciones;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
-        this.fechaProximaDosis = fechaProximaDosis;
-        this.nombreResponsable = nombreResponsable;
-        this.estado = estado;
-        this.observaciones = observaciones;
+        this.duracionTotalCantidad = duracionTotalCantidad;
+        this.duracionTotalUnidad = duracionTotalUnidad;
+        this.intervaloCantidad = intervaloCantidad;
+        this.intervaloUnidad = intervaloUnidad;
     }
 
-    public UUID getId() {
-        return id;
-    }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public UUID getIdFinca() {
-        return idFinca;
-    }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
-    public void setIdFinca(UUID idFinca) {
-        this.idFinca = idFinca;
-    }
+    public String getMedicamento() { return medicamento; }
+    public void setMedicamento(String medicamento) { this.medicamento = medicamento; }
 
-    public UUID getIdIndividuo() {
-        return idIndividuo;
-    }
+    public String getDosis() { return dosis; }
+    public void setDosis(String dosis) { this.dosis = dosis; }
 
-    public void setIdIndividuo(UUID idIndividuo) {
-        this.idIndividuo = idIndividuo;
-    }
+    public Integer getDuracionTotalCantidad() { return duracionTotalCantidad; }
+    public void setDuracionTotalCantidad(Integer duracionTotalCantidad) { this.duracionTotalCantidad = duracionTotalCantidad; }
 
-    public String getTipoTratamiento() {
-        return tipoTratamiento;
-    }
+    public TiempoUnidad getDuracionTotalUnidad() { return duracionTotalUnidad; }
+    public void setDuracionTotalUnidad(TiempoUnidad duracionTotalUnidad) { this.duracionTotalUnidad = duracionTotalUnidad; }
 
-    public void setTipoTratamiento(String tipoTratamiento) {
-        this.tipoTratamiento = tipoTratamiento;
-    }
+    public Integer getIntervaloCantidad() { return intervaloCantidad; }
+    public void setIntervaloCantidad(Integer intervaloCantidad) { this.intervaloCantidad = intervaloCantidad; }
 
-    public ProductoSanitario getProductoUsado() {
-        return productoUsado;
-    }
-
-    public void setProductoUsado(ProductoSanitario productoUsado) {
-        this.productoUsado = productoUsado;
-    }
-
-    public String getDosis() {
-        return dosis;
-    }
-
-    public void setDosis(String dosis) {
-        this.dosis = dosis;
-    }
-
-    public String getFrecuenciaAplicacion() {
-        return frecuenciaAplicacion;
-    }
-
-    public void setFrecuenciaAplicacion(String frecuenciaAplicacion) {
-        this.frecuenciaAplicacion = frecuenciaAplicacion;
-    }
-
-    public Integer getNumeroAplicaciones() {
-        return numeroAplicaciones;
-    }
-
-    public void setNumeroAplicaciones(Integer numeroAplicaciones) {
-        this.numeroAplicaciones = numeroAplicaciones;
-    }
-
-    public Enfermedad getEnfermedadObjetivo() {
-        return enfermedadObjetivo;
-    }
-
-    public void setEnfermedadObjetivo(Enfermedad enfermedadObjetivo) {
-        this.enfermedadObjetivo = enfermedadObjetivo;
-    }
-
-    public Date getFechaFin() {
-        return fechaFin;
-    }
-
-    public void setFechaFin(Date fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
-    public Date getFechaInicio() {
-        return fechaInicio;
-    }
-
-    public void setFechaInicio(Date fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
-    public Date getFechaProximaDosis() {
-        return fechaProximaDosis;
-    }
-
-    public void setFechaProximaDosis(Date fechaProximaDosis) {
-        this.fechaProximaDosis = fechaProximaDosis;
-    }
-
-    public String getNombreResponsable() {
-        return nombreResponsable;
-    }
-
-    public void setNombreResponsable(String nombreResponsable) {
-        this.nombreResponsable = nombreResponsable;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
-    }
+    public TiempoUnidad getIntervaloUnidad() { return intervaloUnidad; }
+    public void setIntervaloUnidad(TiempoUnidad intervaloUnidad) { this.intervaloUnidad = intervaloUnidad; }
 }

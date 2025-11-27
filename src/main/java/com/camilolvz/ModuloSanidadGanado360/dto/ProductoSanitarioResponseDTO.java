@@ -1,27 +1,18 @@
-package com.camilolvz.ModuloSanidadGanado360.model;
+package com.camilolvz.ModuloSanidadGanado360.dto;
 
-import jakarta.persistence.*;
 import java.util.UUID;
 
-@Entity
-public class ProductoSanitario {
+public class ProductoSanitarioResponseDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-    @Column(unique = true, nullable = false)
     private String nombre;
-
-    @Column(nullable = true)
     private String tipo;
-
-    @Column(nullable = true)
     private String especie;
 
-    public ProductoSanitario() {}
+    public ProductoSanitarioResponseDTO() {}
 
-    public ProductoSanitario(String nombre, String tipo, String especie) {
+    public ProductoSanitarioResponseDTO(UUID id, String nombre, String tipo, String especie) {
+        this.id = id;
         this.nombre = nombre;
         this.tipo = tipo;
         this.especie = especie;
@@ -39,3 +30,4 @@ public class ProductoSanitario {
     public String getEspecie() { return especie; }
     public void setEspecie(String especie) { this.especie = especie; }
 }
+

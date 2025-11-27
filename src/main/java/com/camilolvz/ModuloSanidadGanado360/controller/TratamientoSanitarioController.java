@@ -4,6 +4,7 @@ import com.camilolvz.ModuloSanidadGanado360.dto.TratamientoRequestDTO;
 import com.camilolvz.ModuloSanidadGanado360.dto.TratamientoResponseDTO;
 import com.camilolvz.ModuloSanidadGanado360.service.TratamientoSanitarioService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,64 +22,48 @@ public class TratamientoSanitarioController {
         this.service = service;
     }
 
-    @PostMapping
-    public TratamientoResponseDTO crear(@Valid @RequestBody TratamientoRequestDTO dto) {
-        return service.crear(dto);
+    @GetMapping("/all")
+    public ResponseEntity<List<TratamientoResponseDTO>> listarTodos() {
+        return ResponseEntity.ok(service.listarTodos());
     }
 
-    @PutMapping("/{id}")
-    public TratamientoResponseDTO actualizar(
-            @PathVariable UUID id,
-            @Valid @RequestBody TratamientoRequestDTO dto) {
-        return service.actualizar(id, dto);
+    @PostMapping
+    public ResponseEntity<TratamientoResponseDTO> crear(@Valid @RequestBody TratamientoRequestDTO req) {
+        TratamientoResponseDTO creado = service.crear(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 
     @GetMapping("/{id}")
-    public TratamientoResponseDTO obtener(@PathVariable UUID id) {
-        return service.obtener(id);
+    public ResponseEntity<TratamientoResponseDTO> obtenerPorId(@PathVariable UUID id) {
+        return service.obtenerPorId(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @GetMapping("/individuo/{idIndividuo}")
-    public List<TratamientoResponseDTO> obtenerPorIndividuo(@PathVariable UUID idIndividuo) {
-        return service.obtenerPorIndividuo(idIndividuo);
-    }
-
-    @GetMapping("/finca/{idFinca}")
-    public List<TratamientoResponseDTO> obtenerPorFinca(@PathVariable UUID idFinca) {
-        return service.obtenerPorFinca(idFinca);
-    }
-
-    @PostMapping("/vacunas")
-    public ResponseEntity<TratamientoResponseDTO> registrarVacuna(
-            @Valid @RequestBody TratamientoRequestDTO dto) {
-
-        dto.setTipoTratamiento("Vacuna");
-
-        TratamientoResponseDTO creado = service.crear(dto);
-        return ResponseEntity.ok(creado);
-    }
-
-    @GetMapping("/recordatorios")
-    public ResponseEntity<List<TratamientoResponseDTO>> obtenerRecordatorios() {
-        return ResponseEntity.ok(service.obtenerRecordatorios());
-    }
-
-    @GetMapping("/recordatorios/individuo/{idIndividuo}")
-    public ResponseEntity<List<TratamientoResponseDTO>> obtenerRecordatoriosPorIndividuo(
-            @PathVariable UUID idIndividuo) {
-
-        return ResponseEntity.ok(service.obtenerRecordatoriosPorIndividuo(idIndividuo));
-    }
-
-    @GetMapping("/recordatorios/finca/{idFinca}")
-    public ResponseEntity<List<TratamientoResponseDTO>> obtenerRecordatoriosPorFinca(
-            @PathVariable UUID idFinca) {
-
-        return ResponseEntity.ok(service.obtenerRecordatoriosPorFinca(idFinca));
+    @PutMapping("/{id}")
+    public ResponseEntity<TratamientoResponseDTO> editar(@PathVariable UUID id,
+                                                         @Valid @RequestBody TratamientoRequestDTO req) {
+        return service.editar(id, req)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable UUID id) {
-        service.eliminar(id);
+    public ResponseEntity<Void> eliminar(@PathVariable UUID id) {
+        boolean eliminado = service.eliminar(id);
+        if (eliminado) return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<TratamientoResponseDTO> buscarPorNombre(@RequestParam String nombre) {
+        return service.buscarPorNombre(nombre)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @GetMapping("/buscar/descripcion")
+    public ResponseEntity<List<TratamientoResponseDTO>> buscarPorDescripcion(@RequestParam String q) {
+        return ResponseEntity.ok(service.buscarPorDescripcion(q));
     }
 }

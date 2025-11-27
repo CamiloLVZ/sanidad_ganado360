@@ -1,148 +1,64 @@
 package com.camilolvz.ModuloSanidadGanado360.dto;
 
-import java.util.Date;
 import java.util.UUID;
 
 public class TratamientoResponseDTO {
 
     private UUID id;
-    private UUID idIndividuo;
-    private UUID idFinca;
+    private String nombre;
+    private String descripcion;
 
-    private String tipoTratamiento;
-
+    private String medicamento;
     private String dosis;
-    private String frecuenciaAplicacion;
-    private Integer numeroAplicaciones;
 
-    private String productoUsado;
-    private String enfermedadObjetivo;
+    private Integer duracionTotalCantidad;
+    private TiempoUnidadDTO duracionTotalUnidad;
 
-    private Date fechaInicio;
-    private Date fechaFin;
-    private Date fechaProximaDosis;
+    private Integer intervaloCantidad;
+    private TiempoUnidadDTO intervaloUnidad;
 
-    private String nombreResponsable;
-    private String estado;
-    private String observaciones;
+    public TratamientoResponseDTO() {}
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
+    public TratamientoResponseDTO(UUID id, String nombre, String descripcion,
+                                  String medicamento, String dosis,
+                                  Integer duracionTotalCantidad, TiempoUnidadDTO duracionTotalUnidad,
+                                  Integer intervaloCantidad, TiempoUnidadDTO intervaloUnidad) {
         this.id = id;
-    }
-
-    public UUID getIdIndividuo() {
-        return idIndividuo;
-    }
-
-    public void setIdIndividuo(UUID idIndividuo) {
-        this.idIndividuo = idIndividuo;
-    }
-
-    public UUID getIdFinca() {
-        return idFinca;
-    }
-
-    public void setIdFinca(UUID idFinca) {
-        this.idFinca = idFinca;
-    }
-
-    public String getTipoTratamiento() {
-        return tipoTratamiento;
-    }
-
-    public void setTipoTratamiento(String tipoTratamiento) {
-        this.tipoTratamiento = tipoTratamiento;
-    }
-
-    public String getProductoUsado() {
-        return productoUsado;
-    }
-
-    public void setProductoUsado(String productoUsado) {
-        this.productoUsado = productoUsado;
-    }
-
-    public String getDosis() {
-        return dosis;
-    }
-
-    public void setDosis(String dosis) {
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.medicamento = medicamento;
         this.dosis = dosis;
+        this.duracionTotalCantidad = duracionTotalCantidad;
+        this.duracionTotalUnidad = duracionTotalUnidad;
+        this.intervaloCantidad = intervaloCantidad;
+        this.intervaloUnidad = intervaloUnidad;
     }
 
-    public String getFrecuenciaAplicacion() {
-        return frecuenciaAplicacion;
-    }
+    // getters y setters
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public void setFrecuenciaAplicacion(String frecuenciaAplicacion) {
-        this.frecuenciaAplicacion = frecuenciaAplicacion;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public Integer getNumeroAplicaciones() {
-        return numeroAplicaciones;
-    }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
-    public void setNumeroAplicaciones(Integer numeroAplicaciones) {
-        this.numeroAplicaciones = numeroAplicaciones;
-    }
+    public String getMedicamento() { return medicamento; }
+    public void setMedicamento(String medicamento) { this.medicamento = medicamento; }
 
-    public String getEnfermedadObjetivo() {
-        return enfermedadObjetivo;
-    }
+    public String getDosis() { return dosis; }
+    public void setDosis(String dosis) { this.dosis = dosis; }
 
-    public void setEnfermedadObjetivo(String enfermedadObjetivo) {
-        this.enfermedadObjetivo = enfermedadObjetivo;
-    }
+    public Integer getDuracionTotalCantidad() { return duracionTotalCantidad; }
+    public void setDuracionTotalCantidad(Integer duracionTotalCantidad) { this.duracionTotalCantidad = duracionTotalCantidad; }
 
-    public Date getFechaInicio() {
-        return fechaInicio;
-    }
+    public TiempoUnidadDTO getDuracionTotalUnidad() { return duracionTotalUnidad; }
+    public void setDuracionTotalUnidad(TiempoUnidadDTO duracionTotalUnidad) { this.duracionTotalUnidad = duracionTotalUnidad; }
 
-    public void setFechaInicio(Date fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
+    public Integer getIntervaloCantidad() { return intervaloCantidad; }
+    public void setIntervaloCantidad(Integer intervaloCantidad) { this.intervaloCantidad = intervaloCantidad; }
 
-    public Date getFechaProximaDosis() {
-        return fechaProximaDosis;
-    }
-
-    public void setFechaProximaDosis(Date fechaProximaDosis) {
-        this.fechaProximaDosis = fechaProximaDosis;
-    }
-
-    public Date getFechaFin() {
-        return fechaFin;
-    }
-
-    public void setFechaFin(Date fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public String getNombreResponsable() {
-        return nombreResponsable;
-    }
-
-    public void setNombreResponsable(String nombreResponsable) {
-        this.nombreResponsable = nombreResponsable;
-    }
-
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
-    }
+    public TiempoUnidadDTO getIntervaloUnidad() { return intervaloUnidad; }
+    public void setIntervaloUnidad(TiempoUnidadDTO intervaloUnidad) { this.intervaloUnidad = intervaloUnidad; }
 }
