@@ -2,37 +2,42 @@ package com.camilolvz.ModuloSanidadGanado360.service;
 
 import com.camilolvz.ModuloSanidadGanado360.dto.IncidenciaEnfermedadRequestDTO;
 import com.camilolvz.ModuloSanidadGanado360.dto.IncidenciaEnfermedadResponseDTO;
+import com.camilolvz.ModuloSanidadGanado360.mapper.IncidenciaEnfermedadMapper;
 import com.camilolvz.ModuloSanidadGanado360.model.Enfermedad;
 import com.camilolvz.ModuloSanidadGanado360.model.IncidenciaEnfermedad;
 import com.camilolvz.ModuloSanidadGanado360.model.IncidenciaTratamiento;
+import com.camilolvz.ModuloSanidadGanado360.repository.EnfermedadRepository;
 import com.camilolvz.ModuloSanidadGanado360.repository.IncidenciaEnfermedadRepository;
 import com.camilolvz.ModuloSanidadGanado360.repository.IncidenciaTratamientoRepository;
-import com.camilolvz.ModuloSanidadGanado360.repository.EnfermedadRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
 @Service
 public class IncidenciaEnfermedadService {
 
     private final IncidenciaEnfermedadRepository repository;
     private final EnfermedadRepository enfermedadRepository;
     private final IncidenciaTratamientoRepository tratamientoRepository;
+    private final IncidenciaEnfermedadMapper mapper;
 
     public IncidenciaEnfermedadService(
             IncidenciaEnfermedadRepository repository,
             EnfermedadRepository enfermedadRepository,
-            IncidenciaTratamientoRepository tratamientoRepository
+            IncidenciaTratamientoRepository tratamientoRepository,
+            IncidenciaEnfermedadMapper mapper
     ) {
         this.repository = repository;
         this.enfermedadRepository = enfermedadRepository;
         this.tratamientoRepository = tratamientoRepository;
+        this.mapper = mapper;
     }
 
     private IncidenciaEnfermedadResponseDTO mapToDTO(IncidenciaEnfermedad e) {
-        return IncidenciaEnfermedadResponseDTO.fromEntity(e);
+        return mapper.toDto(e);
     }
 
     private IncidenciaEnfermedad convertirAEntidad(IncidenciaEnfermedadRequestDTO req) {
@@ -41,13 +46,7 @@ public class IncidenciaEnfermedadService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Enfermedad no encontrada con id: " + req.getEnfermedadId()));
 
-        IncidenciaEnfermedad i = new IncidenciaEnfermedad();
-        i.setEnfermedad(enf);
-        i.setIdAnimal(req.getIdAnimal());
-        i.setResponsable(req.getResponsable());
-        i.setFechaDiagnostico(req.getFechaDiagnostico());
-
-        return i;
+        return mapper.toEntity(req, enf);
     }
 
     public IncidenciaEnfermedadResponseDTO crear(IncidenciaEnfermedadRequestDTO req) {
@@ -55,8 +54,8 @@ public class IncidenciaEnfermedadService {
         IncidenciaEnfermedad entidad = convertirAEntidad(req);
         IncidenciaEnfermedad guardada = repository.save(entidad);
 
-        // Asociar tratamientos
-        if (req.getTratamientoIds() != null) {
+        // Asociar tratamientos (si vienen IDs)
+        if (req.getTratamientoIds() != null && !req.getTratamientoIds().isEmpty()) {
             List<IncidenciaTratamiento> tratamientos = req.getTratamientoIds().stream()
                     .map(tid -> tratamientoRepository.findById(tid)
                             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -78,7 +77,7 @@ public class IncidenciaEnfermedadService {
     public IncidenciaEnfermedadResponseDTO obtener(UUID id) {
         return repository.findById(id)
                 .map(this::mapToDTO)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Incidencia no encontrada"));
     }
 
     public IncidenciaEnfermedadResponseDTO actualizar(UUID id, IncidenciaEnfermedadRequestDTO req) {
@@ -86,21 +85,21 @@ public class IncidenciaEnfermedadService {
         IncidenciaEnfermedad existente = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        Enfermedad enf = null;
         if (req.getEnfermedadId() != null) {
-            Enfermedad enf = enfermedadRepository.findById(req.getEnfermedadId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
-            existente.setEnfermedad(enf);
+            enf = enfermedadRepository.findById(req.getEnfermedadId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Enfermedad no encontrada con id: " + req.getEnfermedadId()));
         }
 
-        if (req.getIdAnimal() != null) existente.setIdAnimal(req.getIdAnimal());
-        if (req.getResponsable() != null) existente.setResponsable(req.getResponsable());
-        if (req.getFechaDiagnostico() != null) existente.setFechaDiagnostico(req.getFechaDiagnostico());
+        // Actualizar campos básicos (sin tocar tratamientos)
+        mapper.updateEntityFromDto(existente, req, enf);
 
-        // Tratamientos: reasignar completamente
+        // Tratamientos: reasignar completamente si vienen IDs
         if (req.getTratamientoIds() != null) {
 
             // Quitar asociación previa
-            if (existente.getTratamientos() != null) {
+            if (existente.getTratamientos() != null && !existente.getTratamientos().isEmpty()) {
                 existente.getTratamientos().forEach(t -> t.setIncidenciaEnfermedad(null));
                 tratamientoRepository.saveAll(existente.getTratamientos());
             }
@@ -108,7 +107,8 @@ public class IncidenciaEnfermedadService {
             // Asociar nueva lista
             List<IncidenciaTratamiento> nuevos = req.getTratamientoIds().stream()
                     .map(tid -> tratamientoRepository.findById(tid)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST)))
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                    "Tratamiento no encontrado: " + tid)))
                     .peek(t -> t.setIncidenciaEnfermedad(existente))
                     .collect(Collectors.toList());
 
@@ -116,7 +116,8 @@ public class IncidenciaEnfermedadService {
             existente.setTratamientos(nuevos);
         }
 
-        return mapToDTO(repository.save(existente));
+        IncidenciaEnfermedad saved = repository.save(existente);
+        return mapToDTO(saved);
     }
 
     public void eliminar(UUID id) {
@@ -124,7 +125,7 @@ public class IncidenciaEnfermedadService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         // Desasociar tratamientos
-        if (existente.getTratamientos() != null) {
+        if (existente.getTratamientos() != null && !existente.getTratamientos().isEmpty()) {
             existente.getTratamientos().forEach(t -> t.setIncidenciaEnfermedad(null));
             tratamientoRepository.saveAll(existente.getTratamientos());
         }
@@ -159,5 +160,4 @@ public class IncidenciaEnfermedadService {
                 .map(this::mapToDTO)
                 .toList();
     }
-
 }

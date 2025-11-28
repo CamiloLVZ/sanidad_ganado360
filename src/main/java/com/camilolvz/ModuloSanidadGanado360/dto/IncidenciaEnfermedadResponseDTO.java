@@ -1,20 +1,20 @@
 package com.camilolvz.ModuloSanidadGanado360.dto;
 
-import com.camilolvz.ModuloSanidadGanado360.model.IncidenciaEnfermedad;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+/**
+ * DTO de respuesta totalmente desacoplado de la capa de persistencia.
+ */
 public class IncidenciaEnfermedadResponseDTO {
 
     private UUID id;
     private UUID idAnimal;
     private UUID enfermedadId;
     private String enfermedadNombre;
-
     private String responsable;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
@@ -24,23 +24,20 @@ public class IncidenciaEnfermedadResponseDTO {
 
     public IncidenciaEnfermedadResponseDTO() {}
 
-    public static IncidenciaEnfermedadResponseDTO fromEntity(IncidenciaEnfermedad i) {
-        IncidenciaEnfermedadResponseDTO dto = new IncidenciaEnfermedadResponseDTO();
-
-        dto.id = i.getId();
-        dto.idAnimal = i.getIdAnimal();
-        dto.enfermedadId = i.getEnfermedad() != null ? i.getEnfermedad().getId() : null;
-        dto.enfermedadNombre = i.getEnfermedad() != null ? i.getEnfermedad().getNombre() : null;
-        dto.responsable = i.getResponsable();
-        dto.fechaDiagnostico = i.getFechaDiagnostico();
-
-        dto.tratamientoIds = (i.getTratamientos() == null) ? null :
-                i.getTratamientos()
-                        .stream()
-                        .map(t -> t.getId())
-                        .collect(Collectors.toList());
-
-        return dto;
+    public IncidenciaEnfermedadResponseDTO(UUID id,
+                                           UUID idAnimal,
+                                           UUID enfermedadId,
+                                           String enfermedadNombre,
+                                           String responsable,
+                                           Date fechaDiagnostico,
+                                           List<UUID> tratamientoIds) {
+        this.id = id;
+        this.idAnimal = idAnimal;
+        this.enfermedadId = enfermedadId;
+        this.enfermedadNombre = enfermedadNombre;
+        this.responsable = responsable;
+        this.fechaDiagnostico = fechaDiagnostico;
+        this.tratamientoIds = tratamientoIds;
     }
 
     // Getters & setters

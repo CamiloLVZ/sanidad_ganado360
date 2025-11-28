@@ -2,6 +2,7 @@ package com.camilolvz.ModuloSanidadGanado360.service;
 
 import com.camilolvz.ModuloSanidadGanado360.dto.IncidenciaTratamientoRequestDTO;
 import com.camilolvz.ModuloSanidadGanado360.dto.IncidenciaTratamientoResponseDTO;
+import com.camilolvz.ModuloSanidadGanado360.mapper.IncidenciaTratamientoMapper;
 import com.camilolvz.ModuloSanidadGanado360.model.EstadoIncidencia;
 import com.camilolvz.ModuloSanidadGanado360.model.IncidenciaTratamiento;
 import com.camilolvz.ModuloSanidadGanado360.model.TiempoUnidad;
@@ -23,68 +24,18 @@ public class IncidenciaTratamientoService {
 
     private final IncidenciaTratamientoRepository repository;
     private final TratamientoSanitarioRepository tratamientoRepository;
+    private final IncidenciaTratamientoMapper mapper;
 
     public IncidenciaTratamientoService(
             IncidenciaTratamientoRepository repository,
-            TratamientoSanitarioRepository tratamientoRepository
+            TratamientoSanitarioRepository tratamientoRepository,
+            IncidenciaTratamientoMapper mapper
     ) {
         this.repository = repository;
         this.tratamientoRepository = tratamientoRepository;
+        this.mapper = mapper;
     }
 
-    /**
-     * Mapea entidad a DTO (implementado aquí porque el DTO no tenía fromEntity estático).
-     * Ajusta el getter de nombre del tratamiento si tu entidad usa otro getter distinto a getNombre().
-     */
-    private IncidenciaTratamientoResponseDTO mapToDTO(IncidenciaTratamiento e) {
-        IncidenciaTratamientoResponseDTO dto = new IncidenciaTratamientoResponseDTO();
-        dto.setId(e.getId());
-        dto.setIdAnimal(e.getIdAnimal());
-
-        if (e.getTratamiento() != null) {
-            dto.setTratamientoId(e.getTratamiento().getId());
-            // Asumo que TratamientoSanitario tiene getNombre(); cámbialo si es distinto.
-            try {
-                dto.setTratamientoNombre(e.getTratamiento().getNombre());
-            } catch (Exception ex) {
-                // Si no existe getNombre, dejará null (evitar NPE)
-                dto.setTratamientoNombre(null);
-            }
-        } else {
-            dto.setTratamientoId(null);
-            dto.setTratamientoNombre(null);
-        }
-
-        dto.setResponsable(e.getResponsable());
-        dto.setFechaTratamiento(e.getFechaTratamiento());
-        dto.setEstado(e.getEstado());
-        return dto;
-    }
-
-    private IncidenciaTratamiento convertirAEntidad(IncidenciaTratamientoRequestDTO req) {
-        IncidenciaTratamiento i = new IncidenciaTratamiento();
-
-        // Obtener tratamiento por id (debe existir)
-        TratamientoSanitario tratamiento = tratamientoRepository.findById(req.getTratamientoId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tratamiento no encontrado con id: " + req.getTratamientoId()));
-        i.setTratamiento(tratamiento);
-
-        i.setIdAnimal(req.getIdAnimal());
-        i.setResponsable(req.getResponsable());
-        i.setFechaTratamiento(req.getFechaTratamiento());
-
-        if (req.getEstado() != null && !req.getEstado().isBlank()) {
-            try {
-                i.setEstado(EstadoIncidencia.valueOf(req.getEstado().toUpperCase()));
-            } catch (IllegalArgumentException ex) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido. Valores permitidos: PENDIENTE, REALIZADO, ANULADO");
-            }
-        } else {
-            i.setEstado(EstadoIncidencia.PENDIENTE);
-        }
-
-        return i;
-    }
 
     /**
      * Crea la incidencia base y genera (si aplica) las incidencias programadas
@@ -96,85 +47,70 @@ public class IncidenciaTratamientoService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "fechaTratamiento es obligatoria");
         }
 
-        // Persistir incidencia base
-        IncidenciaTratamiento base = convertirAEntidad(req);
+        IncidenciaTratamiento base = mapper.toEntity(req);
         IncidenciaTratamiento savedBase = repository.save(base);
 
-        // Generar incidencias programadas (si el tratamiento define duracionTotal e intervalo)
         try {
             generarIncidenciasProgramadas(savedBase);
         } catch (Exception ex) {
-            // Hacemos rollback para no dejar datos parciales
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generando incidencias programadas: " + ex.getMessage());
         }
 
-        return mapToDTO(savedBase);
+        return mapper.toDTO(savedBase);
     }
 
     // Listar todos
     public List<IncidenciaTratamientoResponseDTO> listarTodos() {
-        return repository.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
+        return mapper.toDTOList(repository.findAll());
     }
 
-    // Obtener por id
     public IncidenciaTratamientoResponseDTO obtener(UUID id) {
-        return repository.findById(id)
-                .map(this::mapToDTO)
+        return repository.findById(id).map(mapper::toDTO)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Incidencia no encontrada"));
     }
 
     // Obtener por animal
     public List<IncidenciaTratamientoResponseDTO> obtenerPorAnimal(UUID idAnimal) {
-        return repository.findByIdAnimal(idAnimal).stream().map(this::mapToDTO).collect(Collectors.toList());
+        return repository.findByIdAnimal(idAnimal).stream().map(mapper::toDTO).collect(Collectors.toList());
     }
 
     // Obtener por tratamiento
     public List<IncidenciaTratamientoResponseDTO> obtenerPorTratamiento(UUID tratamientoId) {
-        return repository.findByTratamiento_Id(tratamientoId).stream().map(this::mapToDTO).collect(Collectors.toList());
+        return repository.findByTratamiento_Id(tratamientoId).stream().map(mapper::toDTO).collect(Collectors.toList());
     }
 
     // Obtener por estado
     public List<IncidenciaTratamientoResponseDTO> obtenerPorEstado(EstadoIncidencia estado) {
-        return repository.findByEstado(estado).stream().map(this::mapToDTO).collect(Collectors.toList());
+        return repository.findByEstado(estado).stream().map(mapper::toDTO).collect(Collectors.toList());
     }
 
     // Actualizar (parcial)
     public IncidenciaTratamientoResponseDTO actualizar(UUID id, IncidenciaTratamientoRequestDTO req) {
+
         IncidenciaTratamiento existente = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Incidencia no encontrada"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Incidencia no encontrada"));
 
-        if (req.getTratamientoId() != null) {
-            TratamientoSanitario t = tratamientoRepository.findById(req.getTratamientoId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tratamiento no encontrado con id: " + req.getTratamientoId()));
-            existente.setTratamiento(t);
-        }
-
-        if (req.getIdAnimal() != null) existente.setIdAnimal(req.getIdAnimal());
-        if (req.getResponsable() != null && !req.getResponsable().isBlank()) existente.setResponsable(req.getResponsable());
-        if (req.getFechaTratamiento() != null) existente.setFechaTratamiento(req.getFechaTratamiento());
-
-        if (req.getEstado() != null && !req.getEstado().isBlank()) {
-            try {
-                EstadoIncidencia nuevo = EstadoIncidencia.valueOf(req.getEstado().toUpperCase());
-                existente.setEstado(nuevo);
-            } catch (IllegalArgumentException ex) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido. Valores permitidos: PENDIENTE, REALIZADO, ANULADO");
-            }
-        }
+        // Delegar actualización al mapper
+        mapper.updateEntityFromRequest(req, existente, tratamientoRepository);
 
         IncidenciaTratamiento guardada = repository.save(existente);
-        return mapToDTO(guardada);
+        return mapper.toDTO(guardada);
     }
 
     // "Eliminar" lógico: marcar ANULADO
     public IncidenciaTratamientoResponseDTO anular(UUID id) {
+
         IncidenciaTratamiento existente = repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Incidencia no encontrada"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Incidencia no encontrada"));
 
         existente.setEstado(EstadoIncidencia.ANULADO);
+
         IncidenciaTratamiento guardada = repository.save(existente);
-        return mapToDTO(guardada);
+        return mapper.toDTO(guardada);
     }
+
 
     /**
      * Comprueba si hay incidencias activas para un animal y tratamiento.
