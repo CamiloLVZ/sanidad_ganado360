@@ -1,5 +1,6 @@
 package com.camilolvz.ModuloSanidadGanado360.dto;
 
+import com.camilolvz.ModuloSanidadGanado360.model.EstadoIncidenciaEnfermedad;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,8 +23,15 @@ public class IncidenciaEnfermedadRequestDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date fechaDiagnostico;
 
-    // IDs de tratamientos asociados
     private List<UUID> tratamientoIds;
+
+    // opcional: permitir enviar estado (si no viene, se usa DIAGNOSTICADA)
+    private EstadoIncidenciaEnfermedad estado;
+    
+
+    // getters y setters inclusive para estado
+    public EstadoIncidenciaEnfermedad getEstado() { return estado; }
+    public void setEstado(EstadoIncidenciaEnfermedad estado) { this.estado = estado; }
 
     public IncidenciaEnfermedadRequestDTO() {}
 

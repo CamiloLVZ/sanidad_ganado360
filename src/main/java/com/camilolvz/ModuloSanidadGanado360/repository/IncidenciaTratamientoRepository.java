@@ -13,7 +13,10 @@ import java.util.UUID;
 public interface IncidenciaTratamientoRepository extends JpaRepository<IncidenciaTratamiento, UUID> {
 
     List<IncidenciaTratamiento> findByIdAnimal(UUID idAnimal);
+    List<IncidenciaTratamiento> findByIncidenciaEnfermedad_Id(UUID incidenciaEnfermedadId);
 
+    long countByIncidenciaEnfermedad_IdAndEstado(UUID incidenciaEnfermedadId, EstadoIncidencia estado);
+    long countByIncidenciaEnfermedad_Id(UUID incidenciaEnfermedadId);
     List<IncidenciaTratamiento> findByEstado(EstadoIncidencia estado);
 
     // Buscar por tratamiento usando la propiedad anidada tratamiento.id

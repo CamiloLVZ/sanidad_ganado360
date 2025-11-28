@@ -3,12 +3,11 @@ package com.camilolvz.ModuloSanidadGanado360.service;
 import com.camilolvz.ModuloSanidadGanado360.dto.IncidenciaEnfermedadRequestDTO;
 import com.camilolvz.ModuloSanidadGanado360.dto.IncidenciaEnfermedadResponseDTO;
 import com.camilolvz.ModuloSanidadGanado360.mapper.IncidenciaEnfermedadMapper;
-import com.camilolvz.ModuloSanidadGanado360.model.Enfermedad;
-import com.camilolvz.ModuloSanidadGanado360.model.IncidenciaEnfermedad;
-import com.camilolvz.ModuloSanidadGanado360.model.IncidenciaTratamiento;
+import com.camilolvz.ModuloSanidadGanado360.model.*;
 import com.camilolvz.ModuloSanidadGanado360.repository.EnfermedadRepository;
 import com.camilolvz.ModuloSanidadGanado360.repository.IncidenciaEnfermedadRepository;
 import com.camilolvz.ModuloSanidadGanado360.repository.IncidenciaTratamientoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -46,26 +45,20 @@ public class IncidenciaEnfermedadService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Enfermedad no encontrada con id: " + req.getEnfermedadId()));
 
-        return mapper.toEntity(req, enf);
+        IncidenciaEnfermedad entidad = mapper.toEntity(req, enf);
+
+        // Si el DTO no trae estado, mantener DIAGNOSTICADA (valor por defecto del modelo)
+        if (req.getEstado() != null) {
+            entidad.setEstado(req.getEstado());
+        }
+
+        return entidad;
     }
 
     public IncidenciaEnfermedadResponseDTO crear(IncidenciaEnfermedadRequestDTO req) {
 
         IncidenciaEnfermedad entidad = convertirAEntidad(req);
         IncidenciaEnfermedad guardada = repository.save(entidad);
-
-        // Asociar tratamientos (si vienen IDs)
-        if (req.getTratamientoIds() != null && !req.getTratamientoIds().isEmpty()) {
-            List<IncidenciaTratamiento> tratamientos = req.getTratamientoIds().stream()
-                    .map(tid -> tratamientoRepository.findById(tid)
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                    "Tratamiento no encontrado: " + tid)))
-                    .peek(t -> t.setIncidenciaEnfermedad(guardada))
-                    .collect(Collectors.toList());
-
-            tratamientoRepository.saveAll(tratamientos);
-            guardada.setTratamientos(tratamientos);
-        }
 
         return mapToDTO(guardada);
     }
@@ -93,7 +86,7 @@ public class IncidenciaEnfermedadService {
         }
 
         // Actualizar campos básicos (sin tocar tratamientos)
-        mapper.updateEntityFromDto(existente, req, enf);
+        mapper.updateEntityFromDto(req, existente, enf);
 
         // Tratamientos: reasignar completamente si vienen IDs
         if (req.getTratamientoIds() != null) {
@@ -118,6 +111,37 @@ public class IncidenciaEnfermedadService {
 
         IncidenciaEnfermedad saved = repository.save(existente);
         return mapToDTO(saved);
+    }
+
+    @Transactional
+    public IncidenciaEnfermedadResponseDTO recalcularEstado(UUID incidenciaEnfermedadId) {
+        IncidenciaEnfermedad incidencia = repository.findById(incidenciaEnfermedadId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "IncidenciaEnfermedad no encontrada: " + incidenciaEnfermedadId));
+
+        // Traer tratamientos relacionados (puedes usar countBy si prefieres)
+        List<IncidenciaTratamiento> tratamientos = tratamientoRepository
+                .findByIncidenciaEnfermedad_Id(incidenciaEnfermedadId);
+
+        // Regla: si alguno está PENDIENTE -> TRATAMIENTO
+        boolean anyPendiente = tratamientos.stream()
+                .anyMatch(t -> t.getEstado() == EstadoIncidencia.PENDIENTE);
+
+        EstadoIncidenciaEnfermedad nuevoEstado;
+        if (anyPendiente) {
+            nuevoEstado = EstadoIncidenciaEnfermedad.TRATAMIENTO;
+        } else {
+            // No hay pendientes -> DIAGNOSTICADA (incluye caso sin tratamientos o todos REALIZADO/ANULADO)
+            nuevoEstado = EstadoIncidenciaEnfermedad.DIAGNOSTICADA;
+        }
+
+        // Solo persistimos si cambió
+        if (incidencia.getEstado() != nuevoEstado) {
+            incidencia.setEstado(nuevoEstado);
+            repository.save(incidencia);
+        }
+
+        return mapper.toDto(incidencia);
     }
 
     public void eliminar(UUID id) {

@@ -30,7 +30,8 @@ public class IncidenciaTratamientoController {
 
     @PostMapping
     public ResponseEntity<IncidenciaTratamientoResponseDTO> crear(@Valid @RequestBody IncidenciaTratamientoRequestDTO req) {
-        // Validación rápida: evitar crear si ya existen incidencias activas para animal+tratamiento
+        System.out.println(req.getIncidenciaEnfermedadId());
+
         if (req.getIdAnimal() == null || req.getTratamientoId() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -40,6 +41,7 @@ public class IncidenciaTratamientoController {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(null);
         }
+
 
         IncidenciaTratamientoResponseDTO creado = service.crear(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);

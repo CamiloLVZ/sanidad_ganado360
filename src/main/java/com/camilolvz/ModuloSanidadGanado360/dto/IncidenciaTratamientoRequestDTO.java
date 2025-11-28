@@ -25,6 +25,9 @@ public class IncidenciaTratamientoRequestDTO {
     // Opcional — se seteará por defecto a PENDIENTE si no se envía
     private String estado;
 
+    // NUEVO: Id de la IncidenciaEnfermedad (opcional). Si se envía, la incidencia tratamiento se vinculará.
+    private UUID incidenciaEnfermedadId;
+
     public IncidenciaTratamientoRequestDTO() {}
 
     public UUID getTratamientoId() { return tratamientoId; }
@@ -41,4 +44,7 @@ public class IncidenciaTratamientoRequestDTO {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public UUID getIncidenciaEnfermedadId() { return incidenciaEnfermedadId; }
+    public void setIncidenciaEnfermedadId(UUID incidenciaEnfermedadId) { this.incidenciaEnfermedadId = incidenciaEnfermedadId; }
 }

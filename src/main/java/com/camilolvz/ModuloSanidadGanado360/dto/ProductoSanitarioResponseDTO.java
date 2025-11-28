@@ -1,5 +1,6 @@
 package com.camilolvz.ModuloSanidadGanado360.dto;
 
+import java.util.List;
 import java.util.UUID;
 
 public class ProductoSanitarioResponseDTO {
@@ -7,15 +8,15 @@ public class ProductoSanitarioResponseDTO {
     private UUID id;
     private String nombre;
     private String tipo;
-    private String especie;
+    private List<String> especies;
 
     public ProductoSanitarioResponseDTO() {}
 
-    public ProductoSanitarioResponseDTO(UUID id, String nombre, String tipo, String especie) {
+    public ProductoSanitarioResponseDTO(UUID id, String nombre, String tipo, List<String> especies) {
         this.id = id;
         this.nombre = nombre;
         this.tipo = tipo;
-        this.especie = especie;
+        this.especies = especies;
     }
 
     public UUID getId() { return id; }
@@ -27,7 +28,6 @@ public class ProductoSanitarioResponseDTO {
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
 
-    public String getEspecie() { return especie; }
-    public void setEspecie(String especie) { this.especie = especie; }
+    public List<String> getEspecies() { return especies; }
+    public void setEspecies(List<String> especies) { this.especies = especies; }
 }
-

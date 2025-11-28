@@ -29,9 +29,14 @@ public class IncidenciaEnfermedad {
     @JoinColumn(name = "enfermedad_id")
     private Enfermedad enfermedad;
 
+    // Estado nuevo
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoIncidenciaEnfermedad estado = EstadoIncidenciaEnfermedad.DIAGNOSTICADA;
+
     // Una incidenciaEnfermedad puede tener muchas incidenciaTratamiento
     @OneToMany(mappedBy = "incidenciaEnfermedad",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE}, // no eliminar tratamientos automáticamente a menos que quieras
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             orphanRemoval = false,
             fetch = FetchType.LAZY)
     private List<IncidenciaTratamiento> tratamientos = new ArrayList<>();
@@ -43,7 +48,13 @@ public class IncidenciaEnfermedad {
         this.responsable = responsable;
         this.fechaDiagnostico = fechaDiagnostico;
         this.enfermedad = enfermedad;
+        this.estado = EstadoIncidenciaEnfermedad.DIAGNOSTICADA;
     }
+
+    // getters / setters...
+
+    public EstadoIncidenciaEnfermedad getEstado() { return estado; }
+    public void setEstado(EstadoIncidenciaEnfermedad estado) { this.estado = estado; }
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }

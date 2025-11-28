@@ -83,13 +83,13 @@ public class ProductoSanitarioService {
         toSave.setNombre(nombre);
         if (fallbackDto != null) {
             toSave.setTipo(fallbackDto.getTipo());
-            toSave.setEspecie(fallbackDto.getEspecie());
+            toSave.setEspecies(fallbackDto.getEspecies()); // <- lista ahora
         }
         ProductoSanitario saved = repository.save(toSave);
         return mapper.toResponseDto(saved);
     }
 
-    // Buscar por especie
+    // Buscar por especie (string)
     public List<ProductoSanitarioResponseDTO> buscarPorEspecie(String especie) {
         return repository.findByEspecieIgnoreCase(especie)
                 .stream()

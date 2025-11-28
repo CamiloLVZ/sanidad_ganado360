@@ -7,6 +7,7 @@ import com.camilolvz.ModuloSanidadGanado360.model.EstadoIncidencia;
 import com.camilolvz.ModuloSanidadGanado360.model.IncidenciaVacuna;
 import com.camilolvz.ModuloSanidadGanado360.model.ProductoSanitario;
 import com.camilolvz.ModuloSanidadGanado360.repository.IncidenciaVacunaRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,27 +21,45 @@ public class IncidenciaVacunaService {
     private final IncidenciaVacunaRepository repository;
     private final ProductoSanitarioService productoService;
     private final IncidenciaVacunaMapper mapper;
+    private final RefuerzoService refuerzoService; // <- inyectado
 
     public IncidenciaVacunaService(IncidenciaVacunaRepository repository,
                                    ProductoSanitarioService productoService,
-                                   IncidenciaVacunaMapper mapper) {
+                                   IncidenciaVacunaMapper mapper,
+                                   RefuerzoService refuerzoService) {
         this.repository = repository;
         this.productoService = productoService;
         this.mapper = mapper;
+        this.refuerzoService = refuerzoService;
     }
 
     // Crear
+    @Transactional
     public IncidenciaVacunaResponseDTO crear(IncidenciaVacunaRequestDTO req) {
         if (req.getFechaVacunacion() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "fechaVacunacion es obligatoria");
         }
 
         ProductoSanitario producto = productoService.obtenerEntityPorId(req.getProductoid())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Producto sanitario no encontrado con id: " + req.getProductoid()));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Producto sanitario no encontrado con id: " + req.getProductoid()));
 
         IncidenciaVacuna entidad = mapper.toEntity(req, producto);
-        IncidenciaVacuna saved = repository.save(entidad);
-        return mapper.toDto(saved);
+
+        // Guardar la incidencia base
+        IncidenciaVacuna savedBase = repository.save(entidad);
+
+        // Generar incidencias pendientes para cada refuerzo del producto
+        try {
+            // RefuerzoService.generarIncidenciasPorRefuerzos retorna la lista de incidencias creadas
+            refuerzoService.generarIncidenciasPorRefuerzos(savedBase);
+        } catch (Exception ex) {
+            // Lanzar excepción para provocar rollback de la transacción
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error generando incidencias por refuerzos: " + ex.getMessage());
+        }
+
+        return mapper.toDto(savedBase);
     }
 
     // Listar todos

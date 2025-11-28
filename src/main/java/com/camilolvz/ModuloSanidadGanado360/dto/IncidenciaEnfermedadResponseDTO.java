@@ -1,5 +1,6 @@
 package com.camilolvz.ModuloSanidadGanado360.dto;
 
+import com.camilolvz.ModuloSanidadGanado360.model.EstadoIncidenciaEnfermedad;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Date;
@@ -22,6 +23,8 @@ public class IncidenciaEnfermedadResponseDTO {
 
     private List<UUID> tratamientoIds;
 
+    private EstadoIncidenciaEnfermedad estado;
+
     public IncidenciaEnfermedadResponseDTO() {}
 
     public IncidenciaEnfermedadResponseDTO(UUID id,
@@ -30,7 +33,8 @@ public class IncidenciaEnfermedadResponseDTO {
                                            String enfermedadNombre,
                                            String responsable,
                                            Date fechaDiagnostico,
-                                           List<UUID> tratamientoIds) {
+                                           List<UUID> tratamientoIds,
+                                           EstadoIncidenciaEnfermedad estado) {
         this.id = id;
         this.idAnimal = idAnimal;
         this.enfermedadId = enfermedadId;
@@ -38,7 +42,12 @@ public class IncidenciaEnfermedadResponseDTO {
         this.responsable = responsable;
         this.fechaDiagnostico = fechaDiagnostico;
         this.tratamientoIds = tratamientoIds;
+        this.estado = estado;
     }
+
+    // getters/setters, incluido getEstado/setEstado
+    public EstadoIncidenciaEnfermedad getEstado() { return estado; }
+    public void setEstado(EstadoIncidenciaEnfermedad estado) { this.estado = estado; }
 
     // Getters & setters
     public UUID getId() { return id; }
